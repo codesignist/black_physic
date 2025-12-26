@@ -1,5 +1,5 @@
-import Matter from 'matter-js';
-import './style.css';
+// Module aliases
+// Matter is now available globally via CDN
 
 // Module aliases
 const Engine = Matter.Engine,
