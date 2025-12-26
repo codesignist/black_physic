@@ -105,9 +105,11 @@ const maxBalls = 60; // Just a safety cap in case logic fails, but we want 1 per
 
 const targetBallCount = 30;
 
-function spawnBall() {
+function spawnBall(isInitial = false) {
     const x = Math.random() * (width - 100) + 50;
-    const y = -50; // Start above screen
+    // If initial, anywhere above screen in a stream. If not, start just above.
+    const y = isInitial ? -(Math.random() * 2000 + 100) : -150; 
+    
     const radius = Math.random() * (maxBallRadius - minBallRadius) + minBallRadius;
     const ball = Bodies.circle(x, y, radius, {
         restitution: 0.9, // Bouncy
@@ -120,15 +122,57 @@ function spawnBall() {
     Composite.add(world, ball);
     balls.push(ball);
 
-    // Remove oldest if we exceed target or if we want to enforce the "1 in, 1 out" rule strictlly after some buildup
-    // Let's just enforce a max count to keep it performant and matching the "equilibrium" idea.
-    if (balls.length > targetBallCount) {
+    // Remove oldest only if we are adding new ones (live cycle), not during initial setup
+    if (!isInitial && balls.length > targetBallCount) {
         const oldest = balls.shift();
         Composite.remove(world, oldest);
     }
 }
 
-setInterval(spawnBall, 1000); // 1 per second
+// Initial Spawn
+function spawnInitialBalls() {
+    for (let i = 0; i < targetBallCount; i++) {
+        spawnBall(true);
+    }
+}
+spawnInitialBalls();
+
+setInterval(() => spawnBall(false), 1000); // 1 per second
+
+// Custom Render for Plus signs
+Events.on(render, 'afterRender', function() {
+    const context = render.context;
+    context.font = "bold 20px Arial";
+    context.fillStyle = "white";
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+
+    balls.forEach(ball => {
+        const r = ball.circleRadius;
+        const angle = ball.angle;
+        
+        const dist = r * 0.6; // Distance from center
+
+        context.save();
+        
+        // Draw + at point 1
+        const x1 = ball.position.x + Math.cos(angle) * dist;
+        const y1 = ball.position.y + Math.sin(angle) * dist;
+        context.translate(x1, y1);
+        context.rotate(angle);
+        context.fillText("+", 0, 0);
+        context.restore();
+
+        context.save();
+        // Draw + at point 2
+        const x2 = ball.position.x + Math.cos(angle + Math.PI) * dist;
+        const y2 = ball.position.y + Math.sin(angle + Math.PI) * dist;
+        context.translate(x2, y2);
+        context.rotate(angle);
+        context.fillText("+", 0, 0);
+        context.restore();
+    });
+});
 
 // Window resize handling
 window.addEventListener('resize', () => {
