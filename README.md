@@ -5,6 +5,9 @@ A faithful recreation of the classic 2005 Flash experiment **"Yugop"** by Yugo N
 ![Project Status](https://img.shields.io/badge/status-active-success.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
+## 🔗 Live Demo
+[View Live Demo](https://codesignist.github.io/black_physics/)
+
 ## 🌟 Features
 
 *   **Real-time Physics**: Powered by [Matter.js](https://brm.io/matter-js/) for realistic 2D rigid body physics.
