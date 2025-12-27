@@ -137,7 +137,36 @@ function spawnInitialBalls() {
 }
 spawnInitialBalls();
 
-setInterval(() => spawnBall(false), 1000); // 1 per second
+// Sound Effect using Web Audio API
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function playBeep() {
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+
+    // Use a square wave for a more 8-bit/digital 'beep' sound
+    oscillator.type = 'square';
+    // Frequency: High pitch, constant
+    oscillator.frequency.setValueAtTime(3000, audioCtx.currentTime); 
+    
+    // Envelope: Short and sharp
+    gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    oscillator.start();
+    oscillator.stop(audioCtx.currentTime + 0.05);
+}
+
+setInterval(() => {
+    spawnBall(false);
+    playBeep();
+}, 1000); // 1 per second
 
 // Custom Render for Plus signs and Growing Ball
 let isGrowing = false;
